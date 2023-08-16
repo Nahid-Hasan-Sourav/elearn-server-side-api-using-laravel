@@ -11,6 +11,11 @@ class Instructor extends Model implements JWTSubject
     use HasFactory,Notifiable;
     protected $guarded=[];
 
+    protected $hidden = [
+        'password',
+        // 'remember_token',
+    ];
+    
     public function getJWTIdentifier()
     {
         return $this->getKey();

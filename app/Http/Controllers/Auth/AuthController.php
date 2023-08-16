@@ -18,7 +18,7 @@ class AuthController extends Controller
             'name'       => 'required|string',
             'email'      => 'required|unique:users|unique:instructors|unique:admins',
             'password'   => 'required|string|min:6',
-            'image'      => 'image | nullable'
+    
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -125,14 +125,13 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required',
-                'role' => 'required', // Make sure the role is one of these values
+                'role' => 'required',
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 401);
             }
 
-            // Find the user based on the provided email and role
             $user = null;
             if ($request->role === 'user') {
                 $user = User::where('email', $request->email)->first();
@@ -178,25 +177,13 @@ class AuthController extends Controller
         $user = auth('api')->user();
         return response()->json(['user' => $user]);
     }
+
+    public function test(){
+        return response()->json([
+            'data'=>'working'
+        ]);
+    }
 }
     
-    
-    //this function working successfully
-    // protected function respondWithToken($token,$user)
-    // {
-    //     $expiration = config('jwt.ttl'); // Retrieve the token expiration time from configuration
-
-    //     return response()->json([
-    //         'user'=>$user,
-    //         'access_token' => $token,
-    //         'token_type' => 'bearer',
-    //         'expires_in' => $expiration * 60 // Convert minutes to seconds
-    //     ]);
-    // }
-    // public function me()
-    // {
-    //     $user = auth('api')->user();
-    //     return response()->json(['user' => $user]);
-    // }
 
 
