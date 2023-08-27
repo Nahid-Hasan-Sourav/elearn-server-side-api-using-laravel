@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\imageTrait;
 use App\Models\User;
 use App\Models\Instructor;
 use App\Models\Admin;
@@ -13,7 +14,22 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+    // use imageTrait;
+    public function getImageUrl($file, $path)
+    {
+        $file_path = null;
+        if ($file && $file !== 'null') {
+            $file_name = date('Ymd-his') . '.' . $file->getClientOriginalName();
+            $destinationPath = public_path($path);
+           
+            // Move the uploaded file to the destination path without resizing
+            $file->move($destinationPath, $file_name);           
+            $file_path = $path . $file_name;
+        }
+        return $file_path ?? null;
+    }
     public function register(Request $request) {
+    
         $validator = Validator::make($request->all(),[
             'name'       => 'required|string',
             'email'      => 'required|unique:users|unique:instructors|unique:admins',
@@ -30,15 +46,16 @@ class AuthController extends Controller
         DB::beginTransaction();
         try{
 
-            if($request->role === 'user'){
+            if($request->role === 'learner'){
          
-                $user=User::create([
-                    'name'      =>$request->name,
-                    'email'     =>$request->email,
-                    'password'  =>bcrypt($request->password),
-                    'image'     =>$request->image ?? null,
-                    'role'     =>$request->role ?? 'user',
-                    ]);
+                $user = User::create([
+                    'name'     => $request->name,
+                    'email'    => $request->email,
+                    'password' => bcrypt($request->password),
+                    'image'    => $this->getImageUrl($request->file('image') ?? null, 'image/learner/'),
+                    'role'     => $request->role ?? 'learner',
+                ]);
+                
                     DB::commit();
                 return response()->json([
                     'message'   => 'user registration successfull',
@@ -51,7 +68,7 @@ class AuthController extends Controller
                     'name'      =>$request->name,
                     'email'     =>$request->email,
                     'password'  =>bcrypt($request->password),
-                    'image'     =>$request->image ?? null,
+                    'image'    => $this->getImageUrl($request->file('image') ?? null, 'image/instructor/'),
                     'role'     =>$request->role ?? 'instructor',
                     ]);
                     DB::commit();
@@ -66,7 +83,7 @@ class AuthController extends Controller
                     'name'      =>$request->name,
                     'email'     =>$request->email,
                     'password'  =>bcrypt($request->password),
-                    'image'     =>$request->image ?? null,
+                    'image'    => $this->getImageUrl($request->file('image') ?? null, 'image/admin/'),
                     'role'     =>$request->role ?? 'admin',
                     ]);
                     DB::commit();
@@ -144,7 +161,8 @@ class AuthController extends Controller
             // Attempt to create a JWT token using the user's stored password
             if (!$user || !password_verify($request->password, $user->password)) {
                 return response()->json([
-                    'error' => 'Invalid credentials'
+                    'error'   => 'Invalid credentials',
+                    'message' =>  'User Or Password Not Match'
                 ], 401);
             }
 
@@ -154,8 +172,8 @@ class AuthController extends Controller
             return $this->respondWithToken($token, $user);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'failed',
-                'message' => 'Login failed',
+                'status'    => 'failed',
+                'message'   => 'Login failed',
                 'error_msg' => $e->getMessage()
             ], 500);
         }
@@ -165,11 +183,11 @@ class AuthController extends Controller
         $expiration = config('jwt.ttl'); // Retrieve the token expiration time from configuration
 
         return response()->json([
-            'message'=>'login success',
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => $expiration * 60,// Convert minutes to seconds
-            'user' => $user,
+            'message'       =>'login success',
+            'access_token'  => $token,
+            'token_type'    => 'bearer',
+            'expires_in'    => $expiration * 60,// Convert minutes to seconds
+            'user'          => $user,
         ]);
     }
 

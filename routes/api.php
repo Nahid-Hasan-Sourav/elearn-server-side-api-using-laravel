@@ -11,4 +11,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('register',[AuthController::class,'register']);
 Route::post('login',[AuthController::class,'login']);
-Route::get('test',[AuthController::class,'test']);
+
+
+
+//IF USER ARE REGISTERED AND TOKEN IS AVAILABLE THEN THEY CAN ACCESS IT
+Route::middleware('auth:api')->group(function () {
+    // protected routes go here
+    Route::get('test',[AuthController::class,'test']);
+});
