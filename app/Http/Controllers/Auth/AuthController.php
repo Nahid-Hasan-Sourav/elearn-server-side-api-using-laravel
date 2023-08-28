@@ -20,8 +20,7 @@ class AuthController extends Controller
         $file_path = null;
         if ($file && $file !== 'null') {
             $file_name = date('Ymd-his') . '.' . $file->getClientOriginalName();
-            $destinationPath = public_path($path);
-           
+            $destinationPath = public_path($path);      
             // Move the uploaded file to the destination path without resizing
             $file->move($destinationPath, $file_name);           
             $file_path = $path . $file_name;
@@ -138,8 +137,7 @@ class AuthController extends Controller
     // }
 
     public function login(Request $request) {
-        try {
-            $validator = Validator::make($request->all(), [
+         $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required',
                 'role' => 'required',
@@ -148,6 +146,8 @@ class AuthController extends Controller
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 401);
             }
+        try {
+           
 
             $user = null;
             if ($request->role === 'user') {
@@ -185,7 +185,7 @@ class AuthController extends Controller
         return response()->json([
             'message'       =>'login success',
             'access_token'  => $token,
-            'token_type'    => 'bearer',
+            'token_type'    => 'Bearer',
             'expires_in'    => $expiration * 60,// Convert minutes to seconds
             'user'          => $user,
         ]);
