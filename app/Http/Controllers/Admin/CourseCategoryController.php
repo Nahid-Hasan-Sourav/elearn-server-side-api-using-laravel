@@ -59,4 +59,22 @@ class CourseCategoryController extends Controller
             ],500);
         }
     }
+
+    public function view(){
+        $data=Category::all();
+
+        return response()->json([
+            'data' =>$data,
+        ]);
+    }
+
+    public function update(Request $request){
+        $id=$request->id;
+
+        $data = Category::findOrFail($id);
+
+        $data->name = $request->name;
+        
+
+    }
 }
