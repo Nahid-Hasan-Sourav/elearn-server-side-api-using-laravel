@@ -24,27 +24,39 @@ class CourseSubCategoryController extends Controller
     }
 
     public function store(Request $request){
+
        $validator = Validator::make($request->all(),[
-        'name'    =>'required|unique:courseSubCategory',
-        'image'   =>'image',
+        'sub_category_name'    =>'required|unique:course_sub_categories',
+        'image'                =>'image',
        ]);
+
        if($validator->fails()){
         return response()->json(['error' => $validator->errors()],401);
        }
+
        DB::beginTransaction();
+
        try{
+
         $subCategory= courseSubCategory::create([
-            'name'  => $request->name,
-            'image' => $this->getImageUrl($request->file('image') ?? null, 'image/sub-category/'),
-            'category_id'=>$request->category_id
+            'sub_category_name'   => $request->sub_category_name,
+            'image'               => $this->getImageUrl($request->file('image') ?? null, 'image/sub-category/'),
+            'category_id'         => $request->category_id
         ]);
+
+        DB::commit();
+        return response()->json([
+            'status'            => 'success',
+            'message'           => 'sub category added successfully',
+            'sub_category_data' =>  $subCategory
+        ], 200);
        }
        catch(\Exception $e){
         DB::rollBack();
         return response()->json([
-            'status' => 'failed',
-            'message' => 'Category Added Failed',
-            'error_msg' => $e->getMessage(),
+            'status'            => 'failed',
+            'message'           => 'sub category Added Failed',
+            'error_msg'         => $e->getMessage(),
         ],500);
        }
     }

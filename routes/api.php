@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CourseCategoryController;
 use App\Http\Controllers\Admin\CourseSubCategoryController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\instructor\CourseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,11 @@ Route::get('view',[CourseCategoryController::class,'view']);
 
 //ADD COURSE SUB CATEGORY
 Route::post('add-subCategory',[CourseSubCategoryController::class,'store']);
+
+
+//ADD COURSE
+Route::post('course/store',[CourseController::class,'store']);
+Route::get('course/view',[CourseController::class,'view']);
 
 //IF USER ARE REGISTERED AND TOKEN IS AVAILABLE THEN THEY CAN ACCESS IT
 Route::middleware('auth:api')->group(function () {
